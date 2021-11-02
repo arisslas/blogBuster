@@ -3,11 +3,11 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>net.ausiasmarch</groupId>
-    <artifactId>blogbuster2021</artifactId>
+    <artifactId>blogbusterLaura</artifactId>
     <version>1.0-SNAPSHOT</version>
     <packaging>war</packaging>
 
-    <name>blogbuster2021</name>
+    <name>blogbusterLaura</name>
 
     <properties>
         <endorsed.dir>${project.build.directory}/endorsed</endorsed.dir>
@@ -34,11 +34,13 @@
             <version>2.4.13</version>
         </dependency>
         
+        <!-- https://mvnrepository.com/artifact/mysql/mysql-connector-java -->
         <dependency>
             <groupId>mysql</groupId>
             <artifactId>mysql-connector-java</artifactId>
             <version>8.0.26</version>
         </dependency>
+
         
     </dependencies>
        

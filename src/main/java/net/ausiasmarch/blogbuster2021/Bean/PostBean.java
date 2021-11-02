@@ -1,4 +1,4 @@
-package net.ausiasmarch.blogbuster2021;
+package net.ausiasmarch.blogbuster2021.Bean;
 
 import java.time.LocalDateTime;
 
@@ -76,5 +76,8 @@ public class PostBean {
     public void setVisible(Boolean visible) {
         this.visible = visible;
     }
-      
+
+    
+    
+    
 }

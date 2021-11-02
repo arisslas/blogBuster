@@ -1,5 +1,12 @@
 package net.ausiasmarch.blogbuster2021;
-
+/*oPostBean.setTitulo(request.getParameter("titulo"));
+                                 oPostBean.setCuerpo(request.getParameter("cuerpo"));
+                          //www.java67.com/2016/04/how-to-convert-string-to-localdatetime-in-java8-example.html#ixzz79JHPYFuY       
+                                 DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"); 
+                                 LocalDateTime dateTime = LocalDateTime.parse((request.getParameter("fecha")), formatter);
+                                 oPostBean.setFecha(dateTime);
+                                 oPostBean.setEtiquetas(request.getParameter("visible"));
+                                 oPostBean.setVisible((Boolean.valueOf(request.getParameter("visible"))));*/
 import com.google.gson.Gson;
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
@@ -11,6 +18,8 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Properties;
 import java.util.Random;
 import javax.servlet.ServletConfig;
@@ -232,15 +241,26 @@ public class Control extends HttpServlet {
                                     PostDAO oPostDao = new PostDAO(oConnection);
                                     PostBean oPostBean = oPostDao.getOne(id);
                                     response.setStatus(HttpServletResponse.SC_OK);
+                                    out.print(oGson.toJson(oPostBean)); 
+                                     
+                                } catch (Exception ex) {
+                                    response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+                                    out.print(oGson.toJson("no entra en get one"));
+                                }
+                                break;
+                            case "getpage":
+                                Integer rpp = Integer.parseInt(request.getParameter("rpp"));
+                                Integer page = Integer.parseInt(request.getParameter("page"));
+                                 try ( Connection oConnection = oConnectionPool.newConnection()) {
+                                    PostDAO oPostDao = new PostDAO(oConnection);
+                                    PostBean[] oPostBean = oPostDao.getPage(rpp,page);
+                                    response.setStatus(HttpServletResponse.SC_OK);
                                     out.print(oGson.toJson(oPostBean));    
                                 } catch (Exception ex) {
                                     response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
                                     out.print(oGson.toJson(ex.getMessage()));
                                 }
-                                break;
-                            case "getpage":
-                                response.setStatus(HttpServletResponse.SC_OK);
-                                out.print(oGson.toJson("post.getpage"));                                                                
+                                                                                               
                                 break;
                             default:
                                 break;
@@ -263,6 +283,7 @@ public class Control extends HttpServlet {
         String ob = request.getParameter("ob");
         String op = request.getParameter("op");
         Gson oGson = new Gson();
+        
         try ( PrintWriter out = response.getWriter()) {
             if (("".equalsIgnoreCase(ob) && "".equalsIgnoreCase(op)) || (ob == null && op == null)) {
                 response.setStatus(HttpServletResponse.SC_METHOD_NOT_ALLOWED);
@@ -305,8 +326,20 @@ public class Control extends HttpServlet {
                     case "post":
                         switch (op) {
                             case "create":
-                                response.setStatus(HttpServletResponse.SC_OK);
-                                out.print(oGson.toJson("post.create"));
+                                
+                                String payloadRequest = getBody(request);
+                                PostBean oPostBean = new PostBean();
+                               oPostBean = oGson.fromJson(payloadRequest,oPostBean.getClass());
+                                 try ( Connection oConnection = oConnectionPool.newConnection()) {
+                                    PostDAO oPostDao = new PostDAO(oConnection);
+                                    oPostDao.create(oPostBean);
+                                    response.setStatus(HttpServletResponse.SC_OK);
+                                    out.print(oGson.toJson(oPostBean));
+                                    } catch (Exception ex) {
+                                    response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+                                    out.print(oGson.toJson(ex.getMessage()));
+                                    }
+                        
                                 break;  
                             default:
                                 response.setStatus(HttpServletResponse.SC_METHOD_NOT_ALLOWED);
@@ -412,7 +445,19 @@ public class Control extends HttpServlet {
                 switch (ob) {
                     case "post":
                         switch (op) {
-                            case "create":
+                            case "update":
+                                   String payloadRequest = getBody(request);
+                                PostBean oPostBean = new PostBean();
+                               oPostBean = oGson.fromJson(payloadRequest,oPostBean.getClass());
+                                 try ( Connection oConnection = oConnectionPool.newConnection()) {
+                                    PostDAO oPostDao = new PostDAO(oConnection);
+                                    oPostDao.update(oPostBean);
+                                    response.setStatus(HttpServletResponse.SC_OK);
+                                    out.print(oGson.toJson(oPostBean));
+                                    } catch (Exception ex) {
+                                    response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+                                    out.print(oGson.toJson(ex.getMessage()));
+                                    }
                                 break;
                             default:
                                 response.setStatus(HttpServletResponse.SC_METHOD_NOT_ALLOWED);
@@ -437,5 +482,7 @@ public class Control extends HttpServlet {
             System.out.print(ex.getMessage());
         }
     }
+    
+    
 
 }
